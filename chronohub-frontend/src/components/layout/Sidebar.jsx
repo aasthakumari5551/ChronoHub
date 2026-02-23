@@ -1,9 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { ThemeContext } from "../../context/ThemeContext";
 
 function Sidebar() {
   const { user, logout } = useContext(AuthContext);
+  const { theme } = useContext(ThemeContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -15,7 +17,7 @@ function Sidebar() {
   };
 
   return (
-    <div className="w-56 bg-gradient-to-b from-[#1a1a40] to-[#16163a] text-white flex flex-col justify-between shadow-2xl min-h-screen">
+    <div className="w-56 bg-white dark:bg-gradient-to-b dark:from-[#1a1a40] dark:to-[#16163a] border-r border-gray-200 dark:border-gray-800 text-gray-800 dark:text-white flex flex-col justify-between shadow-xl min-h-screen transition-colors duration-300">
 
       {/* Top Section */}
       <div className="p-5">
@@ -25,7 +27,7 @@ function Sidebar() {
           <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center shadow-lg">
             <span className="text-white text-base font-bold">C</span>
           </div>
-          <h2 className="text-lg font-bold tracking-wide text-white">
+          <h2 className="text-lg font-bold tracking-wide">
             ChronoHub
           </h2>
         </div>
@@ -33,39 +35,42 @@ function Sidebar() {
         {/* Navigation */}
         <nav className="space-y-1">
 
-          {user?.role === "employee" && (
+          {(user?.role === "employee") && (
             <Link
               to="/employee"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${isActive("/employee")
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg text-white font-semibold"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
-                }`}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/employee")
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg"
+                  : "hover:bg-gray-100 dark:hover:bg-white/10"
+              }`}
             >
               <span className="text-base">📊</span>
               <span>Dashboard</span>
             </Link>
           )}
 
-          {user?.role === "manager" && (
+          {(user?.role === "manager") && (
             <Link
               to="/manager"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${isActive("/manager")
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg text-white font-semibold"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
-                }`}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/manager")
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg"
+                  : "hover:bg-gray-100 dark:hover:bg-white/10"
+              }`}
             >
               <span className="text-base">👔</span>
               <span>Manager Panel</span>
             </Link>
           )}
 
-          {user?.role === "admin" && (
+          {(user?.role === "admin") && (
             <Link
               to="/admin"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${isActive("/admin")
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg text-white font-semibold"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
-                }`}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${
+                isActive("/admin")
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg"
+                  : "hover:bg-gray-100 dark:hover:bg-white/10"
+              }`}
             >
               <span className="text-base">⚙️</span>
               <span>Admin Panel</span>
@@ -84,8 +89,10 @@ function Sidebar() {
             {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-            <p className="text-xs text-gray-400 capitalize">
+            <p className="text-sm font-semibold truncate">
+              {user?.name}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
               {user?.role}
             </p>
           </div>

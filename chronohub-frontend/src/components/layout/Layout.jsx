@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 
 function Layout({ children }) {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
 
       {/* Sidebar */}
       <Sidebar />
@@ -15,7 +15,7 @@ function Layout({ children }) {
         <Navbar />
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
           {children}
         </main>
 

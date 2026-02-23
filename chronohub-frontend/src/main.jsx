@@ -6,18 +6,21 @@ import App from "./App";
 import AuthProvider from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={googleClientId}>
-      <BrowserRouter>
-        <AuthProvider>
-          <App />
-          <Toaster position="top-right" />
-        </AuthProvider>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <App />
+            <Toaster position="top-right" />
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
 );
