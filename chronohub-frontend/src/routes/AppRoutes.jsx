@@ -6,6 +6,8 @@ import ManagerDashboard from "../pages/manager/ManagerDashboard";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Landing from "../pages/Landing";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 function AppRoutes() {
   return (
@@ -13,6 +15,8 @@ function AppRoutes() {
       <Route path="/" element={<Landing  />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       
 
       <Route
