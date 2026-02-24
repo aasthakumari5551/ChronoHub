@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import ThemeToggle from "../../components/ThemeToggle";
 
-function Navbar({ openLeaveModal }) {
+function Navbar({ onMenuClick }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -35,23 +35,36 @@ function Navbar({ openLeaveModal }) {
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+      className="relative z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
     border-b border-gray-200/60 dark:border-gray-800/60
-    px-8 py-4 flex justify-between items-center"
+    px-4 lg:px-8 py-3 lg:py-4 flex justify-between items-center"
     >
 
-      {/* Welcome Section */}
-      <div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Welcome back, {user?.name}
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Here is a quick overview of your dashboard.
-        </p>
+      {/* Left side - Mobile menu button + Welcome text */}
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger button */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        >
+          <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        {/* Welcome text */}
+        <div>
+          <h1 className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Welcome back, {user?.name}
+          </h1>
+          <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
+            Here is a quick overview of your dashboard.
+          </p>
+        </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 lg:gap-4">
 
         {/* Theme Toggle */}
         <ThemeToggle />
@@ -62,17 +75,17 @@ function Navbar({ openLeaveModal }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-3 px-4 py-2 
+            className="flex items-center gap-2 lg:gap-3 px-2 lg:px-4 py-2 
               bg-gray-50 dark:bg-gray-800/50 rounded-xl 
               hover:bg-gray-100 dark:hover:bg-gray-800 transition-all
               border border-gray-200 dark:border-gray-700"
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br 
+            <div className="w-7 lg:w-9 h-7 lg:h-9 rounded-full bg-gradient-to-br 
               from-blue-600 to-purple-600 
-              flex items-center justify-center text-white font-bold">
+              flex items-center justify-center text-white font-bold text-sm lg:text-base">
               {user?.name?.charAt(0)}
             </div>
-            <div className="text-left hidden sm:block">
+            <div className="text-left hidden md:block">
               <p className="text-sm font-semibold text-gray-900 dark:text-white">
                 {user?.name}
               </p>

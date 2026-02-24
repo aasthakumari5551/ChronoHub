@@ -136,29 +136,15 @@ function Profile() {
 
           {/* Page Header */}
           <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div>
-                <h1 className="text-4xl font-bold 
-                bg-gradient-to-r from-blue-600 to-purple-600 
-                bg-clip-text text-transparent">
-                  My Profile
-                </h1>
-                <p className="text-gray-500 mt-2">
-                  Manage your account settings and information
-                </p>
-              </div>
-              {user?.role === "employee" && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsLeaveModalOpen(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
-                    text-white rounded-xl shadow-lg hover:shadow-2xl 
-                    transition-all font-semibold flex items-center gap-2"
-                >
-                  <span className="text-lg">+</span> Apply for Leave
-                </motion.button>
-              )}
+            <div>
+              <h1 className="text-4xl font-bold 
+              bg-gradient-to-r from-blue-600 to-purple-600 
+              bg-clip-text text-transparent">
+                My Profile
+              </h1>
+              <p className="text-gray-500 mt-2">
+                Manage your account settings and information
+              </p>
             </div>
           </div>
 

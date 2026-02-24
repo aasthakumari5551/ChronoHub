@@ -110,20 +110,20 @@ function MyLeaves() {
     <Layout>
       <div className="relative min-h-screen">
         {/* Background Effects */}
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[120px] -z-10" />
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[120px] -z-10" />
+        <div className="absolute -top-40 -left-40 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[80px] sm:blur-[120px] -z-10" />
+        <div className="absolute -bottom-40 -right-40 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[80px] sm:blur-[120px] -z-10" />
 
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="space-y-8 relative z-10"
+          className="space-y-4 sm:space-y-8 relative z-10"
         >
           {/* Header */}
           <motion.div variants={itemVariants}>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   My Leaves
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
@@ -134,9 +134,9 @@ function MyLeaves() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
                   text-white rounded-xl shadow-lg hover:shadow-2xl 
-                  transition-all font-semibold flex items-center gap-2"
+                  transition-all font-semibold flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 <span className="text-lg">+</span> Apply for Leave
               </motion.button>
@@ -146,23 +146,23 @@ function MyLeaves() {
           {/* Search */}
           <motion.div variants={itemVariants}>
             <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
-              rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-800/60 p-5">
+              rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-800/60 p-4 sm:p-5">
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
                 <input
                   type="text"
-                  placeholder="Search requests by type..."
+                  placeholder="Search by leave type..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full md:w-1/2 pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 
-                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                  className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm sm:text-base
                     focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
                 />
               </div>
             </div>
           </motion.div>
 
-          {/* Table */}
+          {/* Leave Cards - Mobile / Table - Desktop */}
           <motion.div 
             variants={itemVariants}
             className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
@@ -185,105 +185,182 @@ function MyLeaves() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-800/50">
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Leave Type
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Start Date
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        End Date
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Duration
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="min-w-full text-left">
+                    <thead>
+                      <tr className="bg-gray-50 dark:bg-gray-800/50">
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Leave Type
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Start Date
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          End Date
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Duration
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
 
-                  <tbody>
-                    {filteredLeaves.map((leave, index) => {
-                      const duration =
-                        (new Date(leave.toDate) - new Date(leave.fromDate)) /
-                        (1000 * 60 * 60 * 24) + 1;
+                    <tbody>
+                      {filteredLeaves.map((leave, index) => {
+                        const duration =
+                          (new Date(leave.toDate) - new Date(leave.fromDate)) /
+                          (1000 * 60 * 60 * 24) + 1;
 
-                      return (
-                        <motion.tr
-                          key={leave._id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="border-b border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-                        >
-                          <td className="p-4">
-                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
-                              {leave.leaveType}
-                            </span>
-                          </td>
-                          <td className="p-4 text-gray-700 dark:text-gray-300">
-                            {formatDate(leave.fromDate)}
-                          </td>
-                          <td className="p-4 text-gray-700 dark:text-gray-300">
-                            {formatDate(leave.toDate)}
-                          </td>
-                          <td className="p-4 text-gray-700 dark:text-gray-300 font-medium">
-                            {duration} {duration === 1 ? "day" : "days"}
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${
-                                leave.status === "approved"
-                                  ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                                  : leave.status === "rejected"
-                                  ? "bg-gradient-to-r from-red-500 to-rose-500"
-                                  : "bg-gradient-to-r from-yellow-500 to-orange-500"
-                              }`}
-                            >
-                              {leave.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => setSelectedLeave(leave)}
-                                className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600"
+                        return (
+                          <motion.tr
+                            key={leave._id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                          >
+                            <td className="p-4">
+                              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
+                                {leave.leaveType}
+                              </span>
+                            </td>
+                            <td className="p-4 text-gray-700 dark:text-gray-300">
+                              {formatDate(leave.fromDate)}
+                            </td>
+                            <td className="p-4 text-gray-700 dark:text-gray-300">
+                              {formatDate(leave.toDate)}
+                            </td>
+                            <td className="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                              {duration} {duration === 1 ? "day" : "days"}
+                            </td>
+                            <td className="p-4">
+                              <span
+                                className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${
+                                  leave.status === "approved"
+                                    ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                                    : leave.status === "rejected"
+                                    ? "bg-gradient-to-r from-red-500 to-rose-500"
+                                    : "bg-gradient-to-r from-yellow-500 to-orange-500"
+                                }`}
                               >
-                                👁
-                              </motion.button>
-
-                              {leave.status === "pending" && (
+                                {leave.status}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleCancel(leave._id)}
-                                  className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-600"
-                                  title="Cancel Leave"
+                                  onClick={() => setSelectedLeave(leave)}
+                                  className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600"
                                 >
-                                  ✖
+                                  👁
                                 </motion.button>
-                              )}
-                            </div>
-                          </td>
-                        </motion.tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+
+                                {leave.status === "pending" && (
+                                  <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => handleCancel(leave._id)}
+                                    className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-600"
+                                    title="Cancel Leave"
+                                  >
+                                    ✖
+                                  </motion.button>
+                                )}
+                              </div>
+                            </td>
+                          </motion.tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-3 p-3">
+                  {filteredLeaves.map((leave, index) => {
+                    const duration =
+                      (new Date(leave.toDate) - new Date(leave.fromDate)) /
+                      (1000 * 60 * 60 * 24) + 1;
+
+                    return (
+                      <motion.div
+                        key={leave._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
+                            {leave.leaveType}
+                          </span>
+                          <span
+                            className={`px-2 py-1 rounded-full text-white text-xs font-semibold ${
+                              leave.status === "approved"
+                                ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                                : leave.status === "rejected"
+                                ? "bg-gradient-to-r from-red-500 to-rose-500"
+                                : "bg-gradient-to-r from-yellow-500 to-orange-500"
+                            }`}
+                          >
+                            {leave.status}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                          <div>
+                            <p className="text-gray-500 text-xs">From</p>
+                            <p className="text-gray-900 dark:text-white font-medium">{formatDate(leave.fromDate)}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500 text-xs">To</p>
+                            <p className="text-gray-900 dark:text-white font-medium">{formatDate(leave.toDate)}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <span className="font-semibold">{duration}</span> {duration === 1 ? "day" : "days"}
+                          </p>
+                          <div className="flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => setSelectedLeave(leave)}
+                              className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 text-sm"
+                            >
+                              View
+                            </motion.button>
+
+                            {leave.status === "pending" && (
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleCancel(leave._id)}
+                                className="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 text-sm"
+                              >
+                                Cancel
+                              </motion.button>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
             )}
 
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500">
+            <div className="hidden lg:block px-6 py-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500">
               Showing {filteredLeaves.length} records
             </div>
           </motion.div>
@@ -308,7 +385,7 @@ function MyLeaves() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="relative bg-white dark:bg-gray-900 w-full max-w-lg p-8 rounded-2xl shadow-2xl"
+              className="relative bg-white dark:bg-gray-900 w-full max-w-lg p-6 sm:p-8 rounded-2xl shadow-2xl"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -317,19 +394,19 @@ function MyLeaves() {
                 ✕
               </button>
 
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Apply for Leave
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                     Leave Type
                   </label>
                   <select
-                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-700 
                       bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
-                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition text-sm sm:text-base"
                     value={leaveType}
                     onChange={(e) => setLeaveType(e.target.value)}
                     required
@@ -343,30 +420,30 @@ function MyLeaves() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                       From Date
                     </label>
                     <input
                       type="date"
-                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-700 
                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
-                        focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                        focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition text-sm sm:text-base"
                       value={fromDate}
                       onChange={(e) => setFromDate(e.target.value)}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                       To Date
                     </label>
                     <input
                       type="date"
-                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-700 
                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
-                        focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                        focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition text-sm sm:text-base"
                       value={toDate}
                       onChange={(e) => setToDate(e.target.value)}
                       required
@@ -375,14 +452,14 @@ function MyLeaves() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                     Reason
                   </label>
                   <textarea
                     placeholder="Enter reason for leave..."
-                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 dark:border-gray-700 
                       bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
-                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition resize-none"
+                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition resize-none text-sm sm:text-base"
                     rows="3"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
@@ -394,9 +471,9 @@ function MyLeaves() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
+                  className="w-full py-2.5 sm:py-3.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
                     text-white rounded-xl font-semibold shadow-lg hover:shadow-xl 
-                    transition-all"
+                    transition-all text-sm sm:text-base"
                 >
                   Submit Leave Request
                 </motion.button>
@@ -423,7 +500,7 @@ function MyLeaves() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-white dark:bg-gray-900 w-full max-w-md p-8 rounded-2xl shadow-2xl"
+              className="relative bg-white dark:bg-gray-900 w-full max-w-md p-6 rounded-2xl shadow-2xl"
             >
               <button
                 onClick={() => setSelectedLeave(null)}
@@ -432,33 +509,33 @@ function MyLeaves() {
                 ✕
               </button>
 
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">
                 Leave Details
               </h2>
 
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                   <p className="text-sm text-gray-500">Leave Type</p>
                   <p className="font-semibold text-gray-900 dark:text-white">{selectedLeave.leaveType}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                     <p className="text-sm text-gray-500">From Date</p>
                     <p className="font-semibold text-gray-900 dark:text-white">{formatDate(selectedLeave.fromDate)}</p>
                   </div>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                     <p className="text-sm text-gray-500">To Date</p>
                     <p className="font-semibold text-gray-900 dark:text-white">{formatDate(selectedLeave.toDate)}</p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                   <p className="text-sm text-gray-500">Reason</p>
                   <p className="font-semibold text-gray-900 dark:text-white">{selectedLeave.reason}</p>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                   <p className="text-sm text-gray-500">Status</p>
                   <span
                     className={`inline-block mt-1 px-3 py-1 rounded-full text-white text-xs font-semibold ${
