@@ -77,11 +77,7 @@ function Profile() {
         data.append("profileImage", profileImage);
       }
 
-      const { data: updatedUser } = await API.put(`/users/profile/update`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const { data: updatedUser } = await API.put(`/users/profile/update`, data);
 
       login(updatedUser, localStorage.getItem("token"));
       toast.success("Profile updated successfully!");

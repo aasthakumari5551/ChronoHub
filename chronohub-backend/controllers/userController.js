@@ -33,7 +33,9 @@ export const updateUserRole = async (req, res) => {
 // 🔹 Update own profile
 export const updateMyProfile = async (req, res) => {
   try {
-    const { name, email, phone, address } = req.body;
+    // Multer puts form fields in req.body
+    const body = req.body || {};
+    const { name, email, phone, address, department, designation } = body;
     
     const user = await User.findById(req.user._id);
 
@@ -46,6 +48,8 @@ export const updateMyProfile = async (req, res) => {
     if (email) user.email = email;
     if (phone) user.phone = phone;
     if (address) user.address = address;
+    if (department) user.department = department;
+    if (designation) user.designation = designation;
     
     // Handle profile image upload
     if (req.file) {
@@ -58,6 +62,7 @@ export const updateMyProfile = async (req, res) => {
     const updatedUser = await User.findById(user._id).select("-password");
     res.json(updatedUser);
   } catch (error) {
+    console.error("Update profile error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
