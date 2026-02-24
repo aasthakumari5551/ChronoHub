@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
 import { Doughnut, Bar } from "react-chartjs-2";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import API from "../../api/axios";
 import Layout from "../../components/layout/Layout";
@@ -86,19 +87,17 @@ function AdminDashboard() {
     ],
   };
 
-  // Chart data for Leave Statistics
-  const leaveStatusCounts = {
-    pending: leaves.filter(l => l.status === "pending").length,
-    approved: leaves.filter(l => l.status === "approved").length,
-    rejected: leaves.filter(l => l.status === "rejected").length,
-  };
-
-  const leaveChartData = {
+  // Chart data for Leave Status
+  const leaveStatus = {
     labels: ["Pending", "Approved", "Rejected"],
     datasets: [
       {
         label: "Leave Requests",
-        data: [leaveStatusCounts.pending, leaveStatusCounts.approved, leaveStatusCounts.rejected],
+        data: [
+          leaves.filter(l => l.status === "pending").length,
+          leaves.filter(l => l.status === "approved").length,
+          leaves.filter(l => l.status === "rejected").length,
+        ],
         backgroundColor: [
           "rgba(234, 179, 8, 0.8)",
           "rgba(34, 197, 94, 0.8)",
@@ -121,7 +120,8 @@ function AdminDashboard() {
       legend: {
         position: "bottom",
         labels: {
-          padding: 15,
+          usePointStyle: true,
+          padding: 20,
           font: {
             size: 12,
           },
@@ -130,142 +130,232 @@ function AdminDashboard() {
     },
   };
 
-  const barChartOptions = {
-    ...chartOptions,
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
-      },
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
     },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
   return (
     <Layout>
-      <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-blue-50/30 min-h-screen">
-        {/* Page Title */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-            Admin Panel
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">Manage users, roles, and system settings</p>
-        </div>
+      <div className="relative min-h-screen">
+        {/* Background Effects */}
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[120px] -z-10" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[120px] -z-10" />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-10">
-          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl sm:text-3xl">👥</span>
-              <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 sm:px-3 py-1 rounded-full">TOTAL</span>
-            </div>
-            <h3 className="text-xs sm:text-sm text-gray-600 mb-1">Total Users</h3>
-            <p className="text-2xl sm:text-4xl font-bold text-blue-700">{totalUsers}</p>
-          </div>
-
-          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl sm:text-3xl">👤</span>
-              <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 sm:px-3 py-1 rounded-full">EMPLOYEES</span>
-            </div>
-            <h3 className="text-xs sm:text-sm text-gray-600 mb-1">Employees</h3>
-            <p className="text-2xl sm:text-4xl font-bold text-green-700">{employees}</p>
-          </div>
-
-          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-200 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl sm:text-3xl">👔</span>
-              <span className="text-xs font-semibold text-yellow-700 bg-yellow-200 px-2 sm:px-3 py-1 rounded-full">MANAGERS</span>
-            </div>
-            <h3 className="text-xs sm:text-sm text-gray-600 mb-1">Managers</h3>
-            <p className="text-2xl sm:text-4xl font-bold text-yellow-700">{managers}</p>
-          </div>
-
-          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl sm:text-3xl">⚙️</span>
-              <span className="text-xs font-semibold text-purple-700 bg-purple-200 px-2 sm:px-3 py-1 rounded-full">ADMINS</span>
-            </div>
-            <h3 className="text-xs sm:text-sm text-gray-600 mb-1">Admins</h3>
-            <p className="text-2xl sm:text-4xl font-bold text-purple-700">{admins}</p>
-          </div>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-10">
-          {/* User Roles Chart */}
-          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl border border-gray-100">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-              User Roles Distribution
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8 relative z-10"
+        >
+          {/* Header */}
+          <motion.div variants={itemVariants}>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Admin Dashboard
             </h2>
-            <div className="h-64 sm:h-80">
-              <Doughnut data={roleChartData} options={chartOptions} />
-            </div>
-          </div>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              Manage users, roles, and view system statistics
+            </p>
+          </motion.div>
 
-          {/* Leave Statistics Chart */}
-          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl border border-gray-100">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-              Leave Statistics
-            </h2>
-            <div className="h-64 sm:h-80">
-              <Bar data={leaveChartData} options={barChartOptions} />
-            </div>
-          </div>
-        </div>
+          {/* Stats Cards */}
+          <motion.div variants={itemVariants} className="grid md:grid-cols-4 gap-6">
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800 hover:shadow-/60
+               2xl hover:shadow-blue-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                    {totalUsers}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  👥
+                </div>
+              </div>
+            </motion.div>
 
-        {/* User Management Table */}
-        <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl border border-gray-100">
-          <div className="flex items-center gap-3 mb-4 sm:mb-6">
-            <span className="text-2xl sm:text-3xl">👥</span>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-              User Management
-            </h2>
-          </div>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Employees</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                    {employees}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  👤
+                </div>
+              </div>
+            </motion.div>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              <p className="text-gray-500 mt-4">Loading users...</p>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-yellow-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Managers</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                    {managers}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  💼
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    {admins}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  ⚡
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Charts */}
+          <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+              rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                User Roles Distribution
+              </h3>
+              <div className="h-64">
+                <Doughnut data={roleChartData} options={chartOptions} />
+              </div>
             </div>
-          ) : users.length === 0 ? (
-            <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">📭</span>
-              <p className="text-gray-500 text-lg">No users found.</p>
+
+            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+              rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                Leave Request Status
+              </h3>
+              <div className="h-64">
+                <Bar data={leaveStatus} options={chartOptions} />
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
-              <div className="inline-block min-w-full align-middle">
-                <table className="min-w-full text-left border-collapse">
+          </motion.div>
+
+          {/* Users Table */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+              rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-800/60 overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                User Management
+              </h3>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-2"
+                />
+                <p className="text-gray-500">Loading...</p>
+              </div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">👥</div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  No users found
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 text-xs sm:text-sm uppercase font-semibold">
-                      <th className="p-3 sm:p-4">Name</th>
-                      <th className="p-3 sm:p-4 hidden sm:table-cell">Email</th>
-                      <th className="p-3 sm:p-4">Role</th>
-                      <th className="p-3 sm:p-4">Actions</th>
+                    <tr className="bg-gray-50 dark:bg-gray-800/50">
+                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
+                        Email
+                      </th>
+                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {users.map((user) => (
-                      <tr
+                    {users.map((user, index) => (
+                      <motion.tr
                         key={user._id}
-                        className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                       >
-                        <td className="p-3 sm:p-4 font-semibold text-gray-900">
-                          <div>
-                            <div className="font-semibold">{user.name}</div>
-                            <div className="text-xs text-gray-500 sm:hidden">{user.email}</div>
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 
+                              flex items-center justify-center text-white font-bold">
+                              {user.name?.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">{user.name}</p>
+                              <p className="text-xs text-gray-500 sm:hidden">{user.email}</p>
+                            </div>
                           </div>
                         </td>
-                        <td className="p-3 sm:p-4 text-gray-700 hidden sm:table-cell">{user.email}</td>
+                        <td className="p-4 text-gray-700 dark:text-gray-300 hidden sm:table-cell">
+                          {user.email}
+                        </td>
 
-                        <td className="p-3 sm:p-4">
+                        <td className="p-4">
                           <select
                             value={user.role}
                             onChange={(e) => updateRole(user._id, e.target.value, user.name)}
-                            className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm rounded-xl border-2 border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                            className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm rounded-xl border-2 
+                              border-gray-200 dark:border-gray-700 
+                              bg-white dark:bg-gray-800 
+                              text-gray-900 dark:text-white
+                              focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 
+                              transition-all font-medium"
                           >
                             <option value="employee">Employee</option>
                             <option value="manager">Manager</option>
@@ -273,22 +363,26 @@ function AdminDashboard() {
                           </select>
                         </td>
 
-                        <td className="p-3 sm:p-4">
-                          <button
+                        <td className="p-4">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => deleteUser(user._id, user.name)}
-                            className="px-3 sm:px-5 py-2 text-xs sm:text-sm rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:shadow-lg hover:scale-105 transition-all"
+                            className="px-4 py-2 text-xs sm:text-sm rounded-xl 
+                              bg-gradient-to-r from-red-500 to-red-600 
+                              text-white font-semibold hover:shadow-lg transition-all"
                           >
                             Delete
-                          </button>
+                          </motion.button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </motion.div>
+        </motion.div>
       </div>
     </Layout>
   );

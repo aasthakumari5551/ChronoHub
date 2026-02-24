@@ -10,7 +10,7 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// 🔹 Update user role
+// 🔹 Update user role (Admin only)
 export const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -30,7 +30,39 @@ export const updateUserRole = async (req, res) => {
   }
 };
 
-// 🔹 Delete user
+// 🔹 Update own profile
+export const updateMyProfile = async (req, res) => {
+  try {
+    const { name, email, phone, address } = req.body;
+    
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    
+    // Handle profile image upload
+    if (req.file) {
+      user.profileImage = req.file.path;
+    }
+
+    await user.save();
+
+    // Return user without password
+    const updatedUser = await User.findById(user._id).select("-password");
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// 🔹 Delete user (Admin only)
 export const deleteUser = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);

@@ -8,16 +8,55 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import Landing from "../pages/Landing";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
+import Profile from "../pages/Profile";
+import MyLeaves from "../pages/employee/MyLeaves";
+import Calendar from "../pages/Calendar";
+import Settings from "../pages/Settings";
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Landing  />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute allowedRoles={["employee", "manager", "admin"]}>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/calendar"
+        element={
+          <ProtectedRoute allowedRoles={["employee", "manager", "admin"]}>
+            <Calendar />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute allowedRoles={["employee", "manager", "admin"]}>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/employee/leaves"
+        element={
+          <ProtectedRoute allowedRoles={["employee"]}>
+            <MyLeaves />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/employee"

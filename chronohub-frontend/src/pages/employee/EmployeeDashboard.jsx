@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import API from "../../api/axios";
 import Layout from "../../components/layout/Layout";
 
@@ -10,6 +12,7 @@ function EmployeeDashboard() {
   const [reason, setReason] = useState("");
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
   const fetchLeaves = async () => {
     try {
@@ -48,10 +51,13 @@ function EmployeeDashboard() {
       setFromDate("");
       setToDate("");
       setReason("");
+      setIsLeaveModalOpen(false);
 
       fetchLeaves();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to submit leave request");
+      toast.error(
+        error.response?.data?.message || "Failed to submit leave request"
+      );
     }
   };
 
@@ -61,190 +67,352 @@ function EmployeeDashboard() {
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
-    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
   return (
     <Layout>
-      <div className="p-6 lg:p-8 bg-gray-50 min-h-screen space-y-6">
+      <div className="relative min-h-screen">
+        {/* Background Effects */}
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[120px] -z-10" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[120px] -z-10" />
 
-        {/* Leave Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-          {/* Pending */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl">⏳</span>
-              <span className="text-xs font-semibold text-yellow-700 bg-yellow-200 px-2.5 py-0.5 rounded-full uppercase">Pending</span>
-            </div>
-            <h3 className="text-xs text-gray-500 mb-0.5">Pending Requests</h3>
-            <p className="text-3xl font-bold text-yellow-700">{pending}</p>
-          </div>
-
-          {/* Approved */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl">✅</span>
-              <span className="text-xs font-semibold text-green-700 bg-green-200 px-2.5 py-0.5 rounded-full uppercase">Approved</span>
-            </div>
-            <h3 className="text-xs text-gray-500 mb-0.5">Approved Leaves</h3>
-            <p className="text-3xl font-bold text-green-700">{approved}</p>
-          </div>
-
-          {/* Rejected */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-red-50 to-red-100 border border-red-200 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl">❌</span>
-              <span className="text-xs font-semibold text-red-700 bg-red-200 px-2.5 py-0.5 rounded-full uppercase">Rejected</span>
-            </div>
-            <h3 className="text-xs text-gray-500 mb-0.5">Rejected Requests</h3>
-            <p className="text-3xl font-bold text-red-700">{rejected}</p>
-          </div>
-        </div>
-
-        {/* Leave Request Form */}
-        <div className="bg-white p-6 lg:p-8 rounded-2xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-xl">📝</span>
-            <h2 className="text-lg font-bold text-gray-900">Apply for Leave</h2>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Row 1: Leave Type + Reason */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8 relative z-10"
+        >
+          {/* Header */}
+          <motion.div variants={itemVariants}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Leave Type</label>
-                <input
-                  type="text"
-                  placeholder="e.g., Sick Leave, Vacation, Personal"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Leave Dashboard
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                  Track and manage your time off requests
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsLeaveModalOpen(true)}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
+                  text-white rounded-xl shadow-lg hover:shadow-2xl 
+                  transition-all font-semibold flex items-center gap-2"
+              >
+                <span className="text-lg">+</span> Apply for Leave
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* Summary Cards */}
+          <motion.div variants={itemVariants} className="grid md:grid-cols-3 gap-6">
+            {/* Pending Card */}
+            <motion.div
+              whileHover={{ y: -5, transition: { duration: 0.3 } }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Pending Requests</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                    {pending}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                  ⏳
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Approved Card */}
+            <motion.div
+              whileHover={{ y: -5, transition: { duration: 0.3 } }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Approved Leaves</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                    {approved}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                  ✅
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Rejected Card */}
+            <motion.div
+              whileHover={{ y: -5, transition: { duration: 0.3 } }}
+              className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                rounded-2xl p-6 shadow-md border border-gray-200/60 dark:border-gray-800/60
+                hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Rejected Requests</p>
+                  <h3 className="text-4xl font-bold mt-2 bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">
+                    {rejected}
+                  </h3>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30 
+                  flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                  ❌
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Leave History */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+              p-6 lg:p-8 rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-800/60"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Recent Leave History
+              </h2>
+              <Link
+                to="/employee/leaves"
+                className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
+              >
+                View All →
+              </Link>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-2"
+                />
+                Loading...
+              </div>
+            ) : leaves.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <div className="text-6xl mb-4">📋</div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  No leaves applied yet.
+                </p>
+                <button
+                  onClick={() => setIsLeaveModalOpen(true)}
+                  className="mt-4 text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                >
+                  Apply for your first leave →
+                </button>
+              </motion.div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200 dark:border-gray-700 
+                      text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      <th className="py-3 px-4">Type</th>
+                      <th className="py-3 px-4">From</th>
+                      <th className="py-3 px-4">To</th>
+                      <th className="py-3 px-4">Duration</th>
+                      <th className="py-3 px-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaves.slice(0, 5).map((leave, index) => {
+                      const duration = Math.ceil(
+                        (new Date(leave.toDate) - new Date(leave.fromDate)) / (1000 * 60 * 60 * 24)
+                      ) + 1;
+                      return (
+                        <motion.tr
+                          key={leave._id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="border-b border-gray-100 dark:border-gray-800 
+                            hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                        >
+                          <td className="py-4 px-4 font-medium text-gray-800 dark:text-gray-200">
+                            {leave.leaveType}
+                          </td>
+                          <td className="py-4 px-4 text-gray-600 dark:text-gray-300">
+                            {formatDate(leave.fromDate)}
+                          </td>
+                          <td className="py-4 px-4 text-gray-600 dark:text-gray-300">
+                            {formatDate(leave.toDate)}
+                          </td>
+                          <td className="py-4 px-4 text-gray-600 dark:text-gray-300">
+                            {duration} {duration === 1 ? "day" : "days"}
+                          </td>
+                          <td className="py-4 px-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${
+                                leave.status === "approved"
+                                  ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                                  : leave.status === "rejected"
+                                  ? "bg-gradient-to-r from-red-500 to-rose-500"
+                                  : "bg-gradient-to-r from-yellow-500 to-orange-500"
+                              }`}
+                            >
+                              {leave.status}
+                            </span>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* MODAL */}
+      {isLeaveModalOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsLeaveModalOpen(false)}
+          />
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", duration: 0.5 }}
+            className="relative bg-white dark:bg-gray-900 w-full max-w-lg p-8 rounded-2xl shadow-2xl"
+          >
+            <button
+              onClick={() => setIsLeaveModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Apply for Leave
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Leave Type
+                </label>
+                <select
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
+                    focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
                   value={leaveType}
                   onChange={(e) => setLeaveType(e.target.value)}
                   required
-                />
+                >
+                  <option value="">Select leave type</option>
+                  <option value="Sick Leave">Sick Leave</option>
+                  <option value="Casual Leave">Casual Leave</option>
+                  <option value="Annual Leave">Annual Leave</option>
+                  <option value="Personal Leave">Personal Leave</option>
+                  <option value="Emergency Leave">Emergency Leave</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
+                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
+                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Reason</label>
-                <input
-                  type="text"
-                  placeholder="Brief reason for leave"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Reason
+                </label>
+                <textarea
+                  placeholder="Enter reason for leave..."
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl 
+                    focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition resize-none"
+                  rows="3"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   required
                 />
               </div>
-            </div>
 
-            {/* Row 2: From Date + To Date */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">From Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">To Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-sm shadow-md hover:shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-            >
-              Submit Leave Request
-            </button>
-          </form>
-        </div>
-
-        {/* Leave History */}
-        <div className="bg-white p-6 lg:p-8 rounded-2xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-xl">📋</span>
-            <h2 className="text-lg font-bold text-gray-900">
-              My Leave History
-            </h2>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              <p className="text-gray-500 mt-4 text-sm">Loading your leaves...</p>
-            </div>
-          ) : leaves.length === 0 ? (
-            <div className="text-center py-12">
-              <span className="text-5xl mb-3 block">📭</span>
-              <p className="text-gray-500 text-base">No leaves applied yet.</p>
-              <p className="text-gray-400 text-sm mt-1">Submit your first leave request above!</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left">
-                <thead>
-                  <tr className="border-b-2 border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
-                    <th className="py-3 px-4 font-semibold">Type</th>
-                    <th className="py-3 px-4 font-semibold hidden sm:table-cell">From</th>
-                    <th className="py-3 px-4 font-semibold hidden sm:table-cell">To</th>
-                    <th className="py-3 px-4 font-semibold">Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {leaves.map((leave) => (
-                    <tr
-                      key={leave._id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-4 px-4 text-sm text-gray-800">
-                        <div>
-                          <div className="font-medium">{leave.leaveType}</div>
-                          <div className="text-xs text-gray-400 sm:hidden mt-0.5">
-                            {formatDate(leave.fromDate)} — {formatDate(leave.toDate)}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-sm text-gray-600 hidden sm:table-cell">
-                        {formatDate(leave.fromDate)}
-                      </td>
-                      <td className="py-4 px-4 text-sm text-gray-600 hidden sm:table-cell">
-                        {formatDate(leave.toDate)}
-                      </td>
-                      <td className="py-4 px-4">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wide ${leave.status === "approved"
-                              ? "bg-green-500"
-                              : leave.status === "rejected"
-                                ? "bg-red-500"
-                                : "bg-yellow-500"
-                            }`}
-                        >
-                          {leave.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-      </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
+                  text-white rounded-xl font-semibold shadow-lg hover:shadow-xl 
+                  transition-all"
+              >
+                Submit Leave Request
+              </motion.button>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
     </Layout>
   );
 }
