@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -11,13 +10,63 @@ function Settings() {
   const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
   
-  const [notifications, setNotifications] = useState({
+  // Define notification options based on user role
+  const getNotificationOptions = () => {
+    const commonOptions = [
+      { key: "email", label: "Email Notifications", desc: "Receive notifications via email" },
+    ];
+
+    const employeeOptions = [
+      { key: "leaveApproved", label: "Leave Approved", desc: "Get notified when your leave is approved" },
+      { key: "leaveRejected", label: "Leave Rejected", desc: "Get notified when your leave is rejected" },
+      { key: "leaveReminders", label: "Leave Reminders", desc: "Get reminders for upcoming leaves" },
+      { key: "weeklyReports", label: "Weekly Reports", desc: "Receive weekly leave summary reports" },
+    ];
+
+    const managerOptions = [
+      { key: "newLeaveRequest", label: "New Leave Requests", desc: "Get notified when employees submit leave requests" },
+      { key: "leaveCancelled", label: "Leave Cancelled", desc: "Get notified when employees cancel leave requests" },
+      { key: "weeklyTeamReports", label: "Weekly Team Reports", desc: "Receive weekly summary of team leave requests" },
+      { key: "approvalReminders", label: "Approval Reminders", desc: "Get reminders for pending leave approvals" },
+    ];
+
+    const adminOptions = [
+      { key: "newUserRegistration", label: "New User Registrations", desc: "Get notified when new users register" },
+      { key: "systemAlerts", label: "System Alerts", desc: "Get important system notifications" },
+      { key: "weeklySummary", label: "Weekly Summary", desc: "Receive weekly platform usage summary" },
+      { key: "approvalReminders", label: "Approval Reminders", desc: "Get reminders for pending approvals" },
+    ];
+
+    switch (user?.role) {
+      case "manager":
+        return [...commonOptions, ...managerOptions];
+      case "admin":
+        return [...commonOptions, ...adminOptions];
+      case "employee":
+      default:
+        return [...commonOptions, ...employeeOptions];
+    }
+  };
+
+  const notificationOptions = getNotificationOptions();
+  
+  // Initialize state with default values
+  const initialNotifications = {
     email: true,
-    leaveApproved: true,
-    leaveRejected: true,
-    leaveReminders: true,
+    leaveApproved: false,
+    leaveRejected: false,
+    leaveReminders: false,
     weeklyReports: false,
-  });
+    newLeaveRequest: false,
+    leaveCancelled: false,
+    weeklyTeamReports: false,
+    approvalReminders: false,
+    newUserRegistration: false,
+    systemAlerts: false,
+    weeklySummary: false,
+  };
+  
+  const [notifications, setNotifications] = useState(initialNotifications);
   
   const [privacy, setPrivacy] = useState({
     showProfile: true,
@@ -83,6 +132,19 @@ function Settings() {
     visible: { opacity: 1, y: 0 },
   };
 
+  // Get role-specific title
+  const getRoleTitle = () => {
+    switch (user?.role) {
+      case "manager":
+        return "Manager";
+      case "admin":
+        return "Admin";
+      case "employee":
+      default:
+        return "Employee";
+    }
+  };
+
   return (
     <Layout>
       <div className="relative min-h-screen">
@@ -106,7 +168,7 @@ function Settings() {
             </p>
           </motion.div>
 
-          {/* Notification Settings */}
+          {/* Notification Settings - Role Based */}
           <motion.div 
             variants={itemVariants}
             className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
@@ -117,18 +179,12 @@ function Settings() {
                 <span>🔔</span> Notification Preferences
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Choose what notifications you want to receive
+                Choose what notifications you want to receive based on your role
               </p>
             </div>
 
             <div className="p-6 space-y-4">
-              {[
-                { key: "email", label: "Email Notifications", desc: "Receive notifications via email" },
-                { key: "leaveApproved", label: "Leave Approved", desc: "Get notified when your leave is approved" },
-                { key: "leaveRejected", label: "Leave Rejected", desc: "Get notified when your leave is rejected" },
-                { key: "leaveReminders", label: "Leave Reminders", desc: "Get reminders for upcoming leaves" },
-                { key: "weeklyReports", label: "Weekly Reports", desc: "Receive weekly leave summary reports" },
-              ].map((item) => (
+              {notificationOptions.map((item) => (
                 <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-white">{item.label}</p>

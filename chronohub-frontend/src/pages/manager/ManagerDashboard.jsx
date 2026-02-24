@@ -11,6 +11,10 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 function ManagerDashboard() {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const itemsPerPage = 10;
 
   const fetchLeaves = async () => {
     try {
@@ -27,6 +31,11 @@ function ManagerDashboard() {
     fetchLeaves();
   }, []);
 
+  // Reset to page 1 when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus, searchTerm]);
+
   const updateStatus = async (id, status, employeeName) => {
     try {
       await API.put(`/leaves/${id}`, { status });
@@ -36,6 +45,21 @@ function ManagerDashboard() {
       toast.error(`Failed to ${status} leave request`);
     }
   };
+
+  // Filter leaves based on status and search
+  const filteredLeaves = leaves.filter((leave) => {
+    const matchesStatus = filterStatus === "all" || leave.status === filterStatus;
+    const matchesSearch = 
+      leave.employee?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leave.employee?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      leave.leaveType?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredLeaves.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedLeaves = filteredLeaves.slice(startIndex, startIndex + itemsPerPage);
 
   const pending = leaves.filter(l => l.status === "pending").length;
   const approved = leaves.filter(l => l.status === "approved").length;
@@ -121,6 +145,19 @@ function ManagerDashboard() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+
+  const FilterButton = ({ status, label, count, color }) => (
+    <button
+      onClick={() => setFilterStatus(status)}
+      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+        filterStatus === status
+          ? color
+          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+      }`}
+    >
+      {label} ({count})
+    </button>
+  );
 
   return (
     <Layout>
@@ -231,16 +268,60 @@ function ManagerDashboard() {
             </div>
           </motion.div>
 
-          {/* Leave Requests Table */}
+          {/* Leave Requests Table with Filters & Pagination */}
           <motion.div 
             variants={itemVariants}
             className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
               rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-800/60 overflow-hidden"
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Pending Leave Requests
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Leave Requests
+                </h3>
+                
+                {/* Search Box */}
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                  <input
+                    type="text"
+                    placeholder="Search employee or leave type..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 
+                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm
+                      focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                <FilterButton 
+                  status="all" 
+                  label="All" 
+                  count={leaves.length} 
+                  color="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                />
+                <FilterButton 
+                  status="pending" 
+                  label="Pending" 
+                  count={pending} 
+                  color="bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                />
+                <FilterButton 
+                  status="approved" 
+                  label="Approved" 
+                  count={approved} 
+                  color="bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                />
+                <FilterButton 
+                  status="rejected" 
+                  label="Rejected" 
+                  count={rejected} 
+                  color="bg-gradient-to-r from-red-500 to-rose-500 text-white"
+                />
+              </div>
             </div>
 
             {loading ? (
@@ -252,7 +333,7 @@ function ManagerDashboard() {
                 />
                 <p className="text-gray-500">Loading...</p>
               </div>
-            ) : leaves.length === 0 ? (
+            ) : filteredLeaves.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📋</div>
                 <p className="text-gray-500 dark:text-gray-400">
@@ -260,113 +341,157 @@ function ManagerDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-800/50">
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Employee
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Leave Type
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Dates
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Reason
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaves.map((leave, index) => (
-                      <motion.tr
-                        key={leave._id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-                      >
-                        <td className="p-4">
-                          <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">
-                              {leave.employee?.name || "Unknown"}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {leave.employee?.email || ""}
-                            </p>
-                          </div>
-                        </td>
-
-                        <td className="p-4">
-                          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
-                            {leave.leaveType}
-                          </span>
-                        </td>
-
-                        <td className="p-4 text-gray-700 dark:text-gray-300">
-                          <div className="text-sm">
-                            <p>{formatDate(leave.fromDate)}</p>
-                            <p className="text-gray-500">to</p>
-                            <p>{formatDate(leave.toDate)}</p>
-                          </div>
-                        </td>
-
-                        <td className="p-4 text-gray-700 dark:text-gray-300 text-sm max-w-xs truncate">
-                          {leave.reason}
-                        </td>
-
-                        <td className="p-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-white text-xs font-bold uppercase shadow-md ${
-                              leave.status === "approved"
-                                ? "bg-gradient-to-r from-green-500 to-green-600"
-                                : leave.status === "rejected"
-                                ? "bg-gradient-to-r from-red-500 to-red-600"
-                                : "bg-gradient-to-r from-yellow-500 to-yellow-600"
-                            }`}
-                          >
-                            {leave.status}
-                          </span>
-                        </td>
-
-                        <td className="p-4">
-                          {leave.status === "pending" && (
-                            <div className="flex gap-2">
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => updateStatus(leave._id, "approved", leave.employee?.name || "Employee")}
-                                className="px-4 py-2 text-xs rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:shadow-lg transition-all"
-                              >
-                                ✓ Approve
-                              </motion.button>
-
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => updateStatus(leave._id, "rejected", leave.employee?.name || "Employee")}
-                                className="px-4 py-2 text-xs rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:shadow-lg transition-all"
-                              >
-                                ✗ Reject
-                              </motion.button>
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-left">
+                    <thead>
+                      <tr className="bg-gray-50 dark:bg-gray-800/50">
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Employee
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Leave Type
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Dates
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Reason
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="p-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedLeaves.map((leave, index) => (
+                        <motion.tr
+                          key={leave._id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="border-b border-gray-100 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                        >
+                          <td className="p-4">
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">
+                                {leave.employee?.name || "Unknown"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {leave.employee?.email || ""}
+                              </p>
                             </div>
-                          )}
-                          {leave.status !== "pending" && (
-                            <span className="text-gray-400 text-xs">No action needed</span>
-                          )}
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          </td>
+
+                          <td className="p-4">
+                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
+                              {leave.leaveType}
+                            </span>
+                          </td>
+
+                          <td className="p-4 text-gray-700 dark:text-gray-300">
+                            <div className="text-sm">
+                              <p>{formatDate(leave.fromDate)}</p>
+                              <p className="text-gray-500">to</p>
+                              <p>{formatDate(leave.toDate)}</p>
+                            </div>
+                          </td>
+
+                          <td className="p-4 text-gray-700 dark:text-gray-300 text-sm max-w-xs truncate">
+                            {leave.reason}
+                          </td>
+
+                          <td className="p-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-white text-xs font-bold uppercase shadow-md ${
+                                leave.status === "approved"
+                                  ? "bg-gradient-to-r from-green-500 to-green-600"
+                                  : leave.status === "rejected"
+                                  ? "bg-gradient-to-r from-red-500 to-red-600"
+                                  : "bg-gradient-to-r from-yellow-500 to-yellow-600"
+                              }`}
+                            >
+                              {leave.status}
+                            </span>
+                          </td>
+
+                          <td className="p-4">
+                            {leave.status === "pending" && (
+                              <div className="flex gap-2">
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => updateStatus(leave._id, "approved", leave.employee?.name || "Employee")}
+                                  className="px-4 py-2 text-xs rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:shadow-lg transition-all"
+                                >
+                                  ✓ Approve
+                                </motion.button>
+
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => updateStatus(leave._id, "rejected", leave.employee?.name || "Employee")}
+                                  className="px-4 py-2 text-xs rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:shadow-lg transition-all"
+                                >
+                                  ✗ Reject
+                                </motion.button>
+                              </div>
+                            )}
+                            {leave.status !== "pending" && (
+                              <span className="text-gray-400 text-xs">No action needed</span>
+                            )}
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredLeaves.length)} of {filteredLeaves.length} entries
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 
+                          hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                      >
+                        Previous
+                      </button>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                            currentPage === page
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 
+                          hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
         </motion.div>

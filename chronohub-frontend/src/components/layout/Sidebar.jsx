@@ -47,11 +47,6 @@ function Sidebar() {
             label: "Dashboard",
           },
           {
-            path: "/manager/leaves",
-            icon: "📋",
-            label: "Leave Requests",
-          },
-          {
             path: "/calendar",
             icon: "📅",
             label: "Calendar",

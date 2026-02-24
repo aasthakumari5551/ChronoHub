@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      scrollbarHide: {
+        /* IE and Edge */
+        '-ms-overflow-style': 'none',
+        /* Firefox */
+        'scrollbar-width': 'none',
+      },
+    },
   },
   plugins: [],
 };
