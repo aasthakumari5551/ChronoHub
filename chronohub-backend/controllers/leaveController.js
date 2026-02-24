@@ -1,24 +1,3 @@
-// 🔹 Employee: Cancel Own Leave
-export const cancelLeave = async (req, res) => {
-  try {
-    const leave = await Leave.findById(req.params.id);
-    if (!leave) {
-      return res.status(404).json({ message: "Leave not found" });
-    }
-    // Only allow cancelling if pending and owned by user
-    if (leave.employee.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Not authorized to cancel this leave" });
-    }
-    if (leave.status !== "pending") {
-      return res.status(400).json({ message: "Only pending leaves can be cancelled" });
-    }
-    leave.status = "cancelled";
-    await leave.save();
-    res.json(leave);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-};
 import Leave from "../models/Leave.js";
 
 
@@ -66,7 +45,7 @@ export const getLeaves = async (req, res) => {
 };
 
 
-// 🔹 Manager: Approve or Reject Leave
+// 🔹 Manager/Admin: Approve or Reject Leave
 export const updateLeaveStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -83,6 +62,48 @@ export const updateLeaveStatus = async (req, res) => {
     await leave.save();
 
     res.json(leave);
+
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+// 🔹 Employee: Cancel Own Leave
+export const cancelLeave = async (req, res) => {
+  try {
+    const leave = await Leave.findById(req.params.id);
+    if (!leave) {
+      return res.status(404).json({ message: "Leave not found" });
+    }
+    // Only allow cancelling if pending and owned by user
+    if (leave.employee.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to cancel this leave" });
+    }
+    if (leave.status !== "pending") {
+      return res.status(400).json({ message: "Only pending leaves can be cancelled" });
+    }
+    leave.status = "cancelled";
+    await leave.save();
+    res.json(leave);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+// 🔹 Admin: Delete Leave
+export const deleteLeave = async (req, res) => {
+  try {
+    const leave = await Leave.findById(req.params.id);
+    
+    if (!leave) {
+      return res.status(404).json({ message: "Leave not found" });
+    }
+
+    await Leave.findByIdAndDelete(req.params.id);
+    
+    res.json({ message: "Leave deleted successfully" });
 
   } catch (error) {
     res.status(500).json({ message: "Server Error" });

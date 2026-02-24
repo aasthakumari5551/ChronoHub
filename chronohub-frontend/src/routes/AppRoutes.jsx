@@ -4,6 +4,8 @@ import Register from "../pages/auth/register";
 import EmployeeDashboard from "../pages/employee/EmployeeDashboard";
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminUsers from "../pages/admin/AdminUsers";
+import AdminLeaves from "../pages/admin/AdminLeaves";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Landing from "../pages/Landing";
 import ForgotPassword from "../pages/auth/ForgotPassword";
@@ -67,6 +69,7 @@ function AppRoutes() {
         }
       />
 
+      {/* Manager Routes */}
       <Route
         path="/manager"
         element={
@@ -77,10 +80,38 @@ function AppRoutes() {
       />
 
       <Route
+        path="/manager/leaves"
+        element={
+          <ProtectedRoute allowedRoles={["manager"]}>
+            <ManagerDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin Routes */}
+      <Route
         path="/admin"
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminUsers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/leaves"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminLeaves />
           </ProtectedRoute>
         }
       />
